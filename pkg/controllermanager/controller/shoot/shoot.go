@@ -257,6 +257,10 @@ func (c *Controller) Run(ctx context.Context, shootWorkers, shootCareWorkers, sh
 			}
 		}
 
+		//'local' cloud provider doesn't need machine name migration
+		if newShoot.Spec.Cloud.Local != nil {
+			continue
+		}
 		// Migration from in-tree CoreOS/operating system support to out-of-tree: We have to rename the old machine image names so that
 		// they fit with the new extension controllers.
 		// This code can be removed in a further version.
