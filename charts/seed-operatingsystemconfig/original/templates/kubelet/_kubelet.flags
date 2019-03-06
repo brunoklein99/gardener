@@ -29,6 +29,9 @@
 {{- range $index, $param := .Values.kubernetes.kubelet.parameters }}
 {{ $param }} \
 {{- end }}
+{{- range $key, $val := .Values.kubernetes.kubelet.featureGates }}
+--feature-gates={{ $key }}={{ $val }} \
+{{- end }}
 --v=2
 {{- if semverCompare "< 1.11" .Values.kubernetes.version }}
 --feature-gates=PodPriority=true \

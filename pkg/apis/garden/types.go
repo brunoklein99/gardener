@@ -1402,6 +1402,9 @@ const (
 // KubeletConfig contains configuration settings for the kubelet.
 type KubeletConfig struct {
 	KubernetesConfig
+	// PodMaxPIDs is the configuration for max number of PIDs allowed by the kubelet
+	// +optional
+	PodMaxPIDs *int `json:"podMaxPids,omitempty"`
 }
 
 // Maintenance contains information about the time window for maintenance operations and which

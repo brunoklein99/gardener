@@ -136,7 +136,7 @@ func (b *HybridBotanist) generateOriginalConfig() (map[string]interface{}, error
 				"domain": gardenv1beta1.DefaultDomain,
 				"kubelet": map[string]interface{}{
 					"caCert":             string(b.Secrets["ca-kubelet"].Data[secrets.DataKeyCertificateCA]),
-					"parameters":         userDataConfig.KubeletParameters,
+					"kubeletParameters":         userDataConfig.KubeletParameters,
 					"hostnameOverride":   userDataConfig.HostnameOverride,
 					"enableCSI":          userDataConfig.EnableCSI,
 					"providerIDProvided": userDataConfig.ProviderIDProvided,
@@ -155,8 +155,24 @@ func (b *HybridBotanist) generateOriginalConfig() (map[string]interface{}, error
 	}
 
 	kubeletConfig := b.Shoot.Info.Spec.Kubernetes.Kubelet
+	var kubeletParameters []string
 	if kubeletConfig != nil {
+		if kubeletConfig.PodMaxPIDs != nil && *kubeletConfig.PodMaxPIDs > 0 {
+			kubeletParameters = append(kubeletParameters, fmt.Sprintf("--pod-max-pids=%d", b.Shoot.Info.Spec.Kubernetes.Kubelet.PodMaxPIDs))
+
+			needsMaxPidsFeatureGate, err := utils.CheckVersionMeetsConstraint(b.Shoot.Info.Spec.Kubernetes.Version, ">= 1.13.0")
+			if err != nil {
+				return nil, err
+			}
+			if needsMaxPidsFeatureGate {
+				if kubeletConfig.FeatureGates == nil {
+					kubeletConfig.FeatureGates = make(map[string]bool)
+				}
+				kubeletConfig.FeatureGates["SupportPodPidsLimit"] = true
+			}
+		}
 		originalConfig["kubernetes"].(map[string]interface{})["kubelet"].(map[string]interface{})["featureGates"] = kubeletConfig.FeatureGates
+		originalConfig["kubernetes"].(map[string]interface{})["kubelet"].(map[string]interface{})["kubeletParameters"] = kubeletParameters
 	}
 	if b.Shoot.UsesCSI() {
 		var featureGates map[string]interface{}

@@ -3633,8 +3633,9 @@ func schema_pkg_apis_garden_v1beta1_KubeProxyConfig(ref common.ReferenceCallback
 					},
 					"mode": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "Mode specifies which proxy mode to use. defaults to IPTables.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -3689,6 +3690,13 @@ func schema_pkg_apis_garden_v1beta1_KubeletConfig(ref common.ReferenceCallback) 
 									},
 								},
 							},
+						},
+					},
+					"podMaxPids": {
+						SchemaProps: spec.SchemaProps{
+							Description: "PodMaxPIDs is the configuration for max number of PIDs allowed by the kubelet",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 				},
